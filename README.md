@@ -1,2 +1,3 @@
-# review-service
-Service providing review functionalities
+# Review service
+
+Providing review based functionalities
