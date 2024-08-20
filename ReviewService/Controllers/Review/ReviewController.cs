@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReviewService.Application.Services;
+using ReviewService.Authorization;
 using ReviewService.Controllers.Review.Requests;
 using ReviewService.Controllers.Review.Responses;
 using ReviewEntity = ReviewService.Domain.Review;
@@ -25,6 +26,7 @@ public class ReviewController : ControllerBase
         this.reviewService = reviewService;
     }
 
+    [Authorize(nameof(AuthorizationLevel.Guest))]
     [HttpPost(Name = nameof(CreateReview))]
     [ProducesResponseType(typeof(ReviewResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateReview([FromBody] ReviewRequest request)
