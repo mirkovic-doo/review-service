@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ReviewService.Application.Repositories;
 using ReviewService.Application.Services;
+using ReviewService.Authorization;
 using ReviewService.Configuration;
 using ReviewService.Infrastructure;
 using ReviewService.Infrastructure.Repositories;
@@ -77,6 +79,9 @@ builder.Services.AddRouting(options =>
 builder.Services.AddScoped<IReviewService, ReviewService.Infrastructure.Services.ReviewService>();
 
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+
+builder.Services.AddScoped<IAuthorizationHandler, AuthorizationLevelAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
 
 var app = builder.Build();
 
