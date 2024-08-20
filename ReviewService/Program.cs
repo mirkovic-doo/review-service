@@ -1,0 +1,117 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using ReviewService.Application.Repositories;
+using ReviewService.Application.Services;
+using ReviewService.Configuration;
+using ReviewService.Infrastructure;
+using ReviewService.Infrastructure.Repositories;
+using System.Reflection;
+using System.Text.Json.Serialization;
+
+var AllowAllOrigins = "_AllowAllOrigins";
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        AllowAllOrigins,
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
+builder.Services.AddDbContext<ReviewDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
+
+var firebaseProjectId = builder.Configuration["FirebaseAuthClientConfig:ProjectId"];
+
+var tokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuer = "https://securetoken.google.com/" + firebaseProjectId,
+    ValidateAudience = true,
+    ValidAudience = firebaseProjectId,
+    ValidateLifetime = true,
+};
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://securetoken.google.com/" + firebaseProjectId;
+        options.TokenValidationParameters = tokenValidationParameters;
+    });
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.Configure<FirebaseAuthClientConfig>(builder.Configuration.GetSection("FirebaseAuthClientConfig"));
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+});
+
+
+builder.Services.AddScoped<IReviewService, ReviewService.Infrastructure.Services.ReviewService>();
+
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+
+app.UseSwagger((opt) =>
+{
+    opt.RouteTemplate = "swagger/{documentName}/swagger.json";
+});
+app.UseSwaggerUI();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseCors(AllowAllOrigins);
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.UseHttpsRedirection();
+
+app.MapControllers();
+
+app.MapDefaultControllerRoute();
+
+using var scope = app.Services.CreateScope();
+
+var context = scope.ServiceProvider.GetRequiredService<ReviewDbContext>();
+context.Database.Migrate();
+
+
+app.Run();
