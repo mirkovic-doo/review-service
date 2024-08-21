@@ -66,11 +66,20 @@ public class ReviewController : ControllerBase
     }
 
     [Authorize(nameof(AuthorizationLevel.Guest))]
-    [HttpPut(nameof(UpdateReview))]
+    [HttpPut(Name = nameof(UpdateReview))]
     [ProducesResponseType(typeof(ReviewResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateReview([FromBody] UpdateReviewRequest request)
     {
         var review = await reviewService.UpdateAsync(mapper.Map<UpdateReviewInput>(request));
         return Ok(review);
+    }
+
+    [HttpDelete("{id}", Name = nameof(DeleteReview))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DeleteReview([FromRoute] Guid id)
+    {
+        await reviewService.DeleteAsync(id);
+
+        return Ok();
     }
 }
