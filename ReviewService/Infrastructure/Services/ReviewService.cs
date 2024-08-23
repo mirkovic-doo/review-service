@@ -3,6 +3,7 @@ using ReviewService.Application.Repositories;
 using ReviewService.Application.Services;
 using ReviewService.Contracts.Data;
 using ReviewService.Domain;
+using ReviewService.Notification;
 
 namespace ReviewService.Infrastructure.Services;
 
@@ -10,16 +11,31 @@ public class ReviewService : IReviewService
 {
     private readonly IMapper mapper;
     private readonly IReviewRepository reviewRepository;
+    private readonly INotificationSender notificationSender;
 
-    public ReviewService(IMapper mapper, IReviewRepository reviewRepository)
+    public ReviewService(
+        IMapper mapper,
+        IReviewRepository reviewRepository,
+        INotificationSender notificationSender)
     {
         this.mapper = mapper;
         this.reviewRepository = reviewRepository;
+        this.notificationSender = notificationSender;
     }
 
     public async Task<Review> CreateAsync(Review review)
     {
-        return await reviewRepository.AddAsync(review);
+        var createdReview = await reviewRepository.AddAsync(review);
+
+        notificationSender.Send(new NotificationPayload
+        {
+            SenderId = review.CreatedById,
+            RecieverId = review.RevieweeId,
+            EntityId = review.Id,
+            Type = NotificationType.ReviewRecieved
+        });
+
+        return createdReview;
     }
 
     public async Task DeleteAsync(Guid id)
