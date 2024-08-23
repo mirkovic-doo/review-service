@@ -89,7 +89,7 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<IAuthorizationHandler, AuthorizationLevelAuthorizationHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
-builder.Services.AddSingleton<INotificationSender, NotificationSender>();
+builder.Services.AddSingleton<INotificationSenderService, NotificationSenderService>();
 
 var app = builder.Build();
 

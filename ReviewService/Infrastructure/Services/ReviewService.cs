@@ -11,12 +11,12 @@ public class ReviewService : IReviewService
 {
     private readonly IMapper mapper;
     private readonly IReviewRepository reviewRepository;
-    private readonly INotificationSender notificationSender;
+    private readonly INotificationSenderService notificationSender;
 
     public ReviewService(
         IMapper mapper,
         IReviewRepository reviewRepository,
-        INotificationSender notificationSender)
+        INotificationSenderService notificationSender)
     {
         this.mapper = mapper;
         this.reviewRepository = reviewRepository;

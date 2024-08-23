@@ -7,13 +7,13 @@ using IModel = RabbitMQ.Client.IModel;
 
 namespace ReviewService.Notification;
 
-public class NotificationSender : INotificationSender, IDisposable
+public class NotificationSenderService : INotificationSenderService, IDisposable
 {
     private readonly RabbitMQConfig config;
     private readonly IConnection connection;
     private readonly IModel channel;
 
-    public NotificationSender(IOptions<RabbitMQConfig> options)
+    public NotificationSenderService(IOptions<RabbitMQConfig> options)
     {
         this.config = options.Value;
 
@@ -21,7 +21,7 @@ public class NotificationSender : INotificationSender, IDisposable
         {
             HostName = this.config.HostName,
             UserName = this.config.UserName,
-            Password = this.config.Password
+            Password = this.config.Password,
         };
 
         this.connection = factory.CreateConnection();

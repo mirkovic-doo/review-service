@@ -1,6 +1,6 @@
 ﻿namespace ReviewService.Notification;
 
-public interface INotificationSender
+public interface INotificationSenderService
 {
     void Send(NotificationPayload payload);
 }
