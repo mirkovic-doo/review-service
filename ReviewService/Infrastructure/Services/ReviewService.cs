@@ -30,7 +30,7 @@ public class ReviewService : IReviewService
         notificationSender.Send(new NotificationPayload
         {
             SenderId = review.CreatedById,
-            RecieverId = review.RevieweeId,
+            ReceiverId = review.RevieweeId,
             EntityId = review.Id,
             Type = NotificationType.ReviewRecieved
         });
