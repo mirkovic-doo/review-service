@@ -10,6 +10,7 @@ using ReviewService.Authorization;
 using ReviewService.Configuration;
 using ReviewService.Infrastructure;
 using ReviewService.Infrastructure.Repositories;
+using ReviewService.Notification;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -65,6 +66,8 @@ builder.Services
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.Configure<FirebaseAuthClientConfig>(builder.Configuration.GetSection("FirebaseAuthClientConfig"));
+builder.Services.Configure<RabbitMQConfig>(builder.Configuration.GetSection("RabbitMQConfig"));
+
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
@@ -86,6 +89,7 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<IAuthorizationHandler, AuthorizationLevelAuthorizationHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+builder.Services.AddSingleton<INotificationSenderService, NotificationSenderService>();
 
 var app = builder.Build();
 
