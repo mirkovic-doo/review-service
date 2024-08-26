@@ -13,6 +13,7 @@ using ReviewService.Infrastructure.Repositories;
 using ReviewService.Notification;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Serilog;
 
 var AllowAllOrigins = "_AllowAllOrigins";
 
@@ -74,6 +75,14 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Host.UseSerilog((context, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration.GetSection("ElasticApm").GetValue<string>("ServerCert")))
+{
+    builder.Services.AddElasticApm();
+}
+
 builder.Services.AddRouting(options =>
 {
     options.LowercaseUrls = true;
@@ -104,6 +113,9 @@ app.UseSwagger((opt) =>
     opt.RouteTemplate = "swagger/{documentName}/swagger.json";
 });
 app.UseSwaggerUI();
+
+app.UseMiddleware<RequestContextLoggingMiddleware>();
+app.UseSerilogRequestLogging();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
