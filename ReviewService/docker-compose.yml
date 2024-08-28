@@ -1,0 +1,22 @@
+﻿services:
+  review:
+    container_name: review
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+    volumes:
+      - ../../ELK-stack/secrets/certs:/app/certs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  default:
+    name: bukiteasy
+    external: true
