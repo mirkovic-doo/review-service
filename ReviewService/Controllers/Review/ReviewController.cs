@@ -60,7 +60,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(typeof(ReviewResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateReview([FromBody] ReviewRequest request)
     {
-        var review = await reviewService.CreateAsync(mapper.Map<ReviewEntity>(request));
+        var review = await reviewService.CreateAsync(mapper.Map<ReviewEntity>(request), request.HostId);
 
         return CreatedAtAction(nameof(CreateReview), mapper.Map<ReviewResponse>(review));
     }

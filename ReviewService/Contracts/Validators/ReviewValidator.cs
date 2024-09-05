@@ -18,7 +18,14 @@ public class ReviewValidator : AbstractValidator<ReviewRequest>
         RuleFor(x => x.ReservationId)
             .NotEmpty();
 
+        RuleFor(x => x.HostId)
+            .NotEmpty();
+
         RuleFor(x => x.Type)
             .NotEmpty();
+
+        RuleFor(x => x)
+            .Must(x => (x.Type == Domain.ReviewType.Host && x.RevieweeId == x.HostId) || x.Type == Domain.ReviewType.Property)
+            .WithMessage("Reviewee id and host id must be same in case of reviewing the host");
     }
 }

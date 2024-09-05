@@ -23,14 +23,14 @@ public class ReviewService : IReviewService
         this.notificationSender = notificationSender;
     }
 
-    public async Task<Review> CreateAsync(Review review)
+    public async Task<Review> CreateAsync(Review review, Guid hostId)
     {
         var createdReview = await reviewRepository.AddAsync(review);
 
         notificationSender.Send(new NotificationPayload
         {
             SenderId = review.CreatedById,
-            ReceiverId = review.RevieweeId,
+            ReceiverId = hostId,
             EntityId = review.Id,
             Type = NotificationType.ReviewRecieved
         });
